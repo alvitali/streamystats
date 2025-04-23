@@ -2,11 +2,11 @@ name: build-push
 on:
   push:
     branches:
-      - main # triggers :edge builds
+      - test-build # triggers :edge builds
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
-  pull_request:
-    branches: [main]
+  # pull_request:
+  #   branches: [main]
 
 jobs:
   docker:
@@ -25,20 +25,20 @@ jobs:
       - id: meta_next
         uses: docker/metadata-action@v5
         with:
-          images: fredrikburmester/streamystats-nextjs
+          images: alvitali/streamystats-nextjs
           tags: |
             type=edge,branch=main
             type=semver,pattern={{version}},event=tag   # vX.Y.Z
             type=sha,event=push,branch=main
 
-      - id: meta_phx
-        uses: docker/metadata-action@v5
-        with:
-          images: fredrikburmester/streamystats-phoenix
-          tags: |
-            type=edge,branch=main
-            type=semver,pattern={{version}},event=tag
-            type=sha,event=push,branch=main
+      # - id: meta_phx
+      #   uses: docker/metadata-action@v5
+      #   with:
+      #     images: alvitali/streamystats-phoenix
+      #     tags: |
+      #       type=edge,branch=main
+      #       type=semver,pattern={{version}},event=tag
+      #       type=sha,event=push,branch=main
 
       - name: Build & push Next.js
         uses: docker/build-push-action@v5
@@ -56,15 +56,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build & push Phoenix
-        uses: docker/build-push-action@v5
-        with:
-          context: ./server
-          file: ./server/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          build-args: VERSION=${{ github.ref_name }}
-          tags: ${{ steps.meta_phx.outputs.tags }}
-          labels: ${{ steps.meta_phx.outputs.labels }}
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - name: Build & push Phoenix
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./server
+      #     file: ./server/Dockerfile
+      #     platforms: linux/amd64,linux/arm64
+      #     build-args: VERSION=${{ github.ref_name }}
+      #     tags: ${{ steps.meta_phx.outputs.tags }}
+      #     labels: ${{ steps.meta_phx.outputs.labels }}
+      #     push: true
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
